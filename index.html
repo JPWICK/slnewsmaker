@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇱🇰 Lanka News — Viral Post Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f1a;--surface:#111827;--card:#1a2235;--border:#1e2d45;
+  --gold:#c9a84c;--gold-dim:#7a6030;--saffron:#e07b2a;
+  --text:#e8e4d9;--text-dim:#7a8499;--text-mid:#b0bac8;
+  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;--radius:10px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+
+/* ── HEADER ── */
+header{background:linear-gradient(135deg,#0b0f1a,#111827);border-bottom:1px solid var(–border);padding:0 24px;position:sticky;top:0;z-index:100}
+.header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(–gold),var(–saffron));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.logo-text{font-family:‘Playfair Display’,serif;font-size:18px;font-weight:700;line-height:1.1}
+.logo-sub{font-size:10px;color:var(–gold);letter-spacing:2px;text-transform:uppercase;font-weight:500}
+.header-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(–text-dim)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(–text-dim);transition:background .3s}
+.status-dot.live{background:var(–green);box-shadow:0 0 6px var(–green)}
+.status-dot.error{background:var(–red)}
+
+/* ── MAIN ── */
+main{max-width:1100px;margin:0 auto;padding:28px 24px}
+
+/* ── CONFIG PANEL ── */
+.cfg-panel{background:var(–surface);border:1px solid var(–border);border-radius:var(–radius);margin-bottom:20px;overflow:hidden}
+.cfg-header{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.cfg-title{font-size:13px;font-weight:600;color:var(–text);display:flex;align-items:center;gap:8px}
+.cfg-sub{font-size:11px;color:var(–text-dim);margin-top:2px}
+.chevron{color:var(–text-dim);font-size:12px;transition:transform .2s}
+.chevron.open{transform:rotate(180deg)}
+.cfg-body{display:none;padding:0 20px 20px;border-top:1px solid var(–border)}
+.cfg-body.open{display:block}
+.key-row{display:flex;gap:8px;margin-top:14px}
+.key-label{font-size:11px;color:var(–text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-weight:600}
+.key-input{flex:1;background:#0b0f1a;border:1px solid var(–border);border-radius:8px;padding:10px 14px;color:var(–text);font-size:13px;font-family:‘Inter’,sans-serif;outline:none;transition:border-color .2s}
+.key-input:focus{border-color:var(–gold-dim)}
+.key-input.ok{border-color:var(–green)}
+.eye-btn{background:transparent;border:1px solid var(–border);border-radius:8px;padding:10px 13px;color:var(–text-dim);cursor:pointer;font-size:15px;transition:all .2s}
+.eye-btn:hover{border-color:var(–gold-dim);color:var(–text)}
+.save-btn{margin-top:12px;width:100%;padding:10px;background:linear-gradient(135deg,var(–gold),var(–saffron));border:none;border-radius:8px;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:‘Inter’,sans-serif;transition:opacity .2s}
+.save-btn:hover{opacity:.9}
+
+/* ── CONTROLS ── */
+.controls{background:var(–surface);border:1px solid var(–border);border-radius:var(–radius);padding:20px;margin-bottom:24px}
+.controls-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.controls-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(–text-dim);font-weight:600;white-space:nowrap}
+.cat-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.cat-tab{padding:7px 14px;border-radius:20px;border:1px solid var(–border);background:transparent;color:var(–text-dim);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:‘Inter’,sans-serif}
+.cat-tab:hover{border-color:var(–gold-dim);color:var(–text)}
+.cat-tab.active{background:linear-gradient(135deg,var(–gold),var(–saffron));border-color:transparent;color:#000;font-weight:700}
+.lang-toggle{display:flex;border:1px solid var(–border);border-radius:8px;overflow:hidden;margin-left:auto}
+.lang-btn{padding:7px 14px;background:transparent;border:none;color:var(–text-dim);font-size:12px;font-weight:600;cursor:pointer;font-family:‘Inter’,sans-serif;transition:all .2s}
+.lang-btn.active{background:var(–gold);color:#000}
+
+/* ── STYLE CARDS ── */
+.style-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.style-card{flex:1;min-width:100px;padding:10px 12px;background:var(–card);border:1px solid var(–border);border-radius:8px;cursor:pointer;transition:all .2s;text-align:center}
+.style-card:hover{border-color:var(–gold-dim)}
+.style-card.active{border-color:var(–gold);background:rgba(201,168,76,.1)}
+.style-card-icon{font-size:18px;margin-bottom:4px}
+.style-card-label{font-size:11px;font-weight:600;color:var(–text-dim)}
+.style-card.active .style-card-label{color:var(–gold)}
+
+/* ── FETCH BTN ── */
+.fetch-btn{width:100%;padding:12px;border:none;border-radius:8px;background:linear-gradient(135deg,var(–gold),var(–saffron));color:#000;font-size:14px;font-weight:700;cursor:pointer;font-family:‘Inter’,sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.fetch-btn:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
+.fetch-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.spinner{width:16px;height:16px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.fetch-btn.loading .spinner{display:block}
+.fetch-btn.loading .btn-text{opacity:.6}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── ERROR ── */
+.error-bar{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:12px 16px;color:#f87171;font-size:13px;margin-bottom:20px;display:none}
+.error-bar.show{display:block}
+
+/* ── SECTION LABEL ── */
+.section-label{display:none;align-items:center;gap:10px;margin-bottom:20px}
+.section-label-text{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(–gold);font-weight:600}
+.section-label-line{flex:1;height:1px;background:var(–border)}
+.section-label-count{font-size:11px;color:var(–text-dim);background:var(–surface);border:1px solid var(–border);padding:2px 10px;border-radius:20px}
+
+/* ── GRID ── */
+.news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+
+/* ── CARD ── */
+.news-card{background:var(–card);border:1px solid var(–border);border-radius:var(–radius);overflow:hidden;transition:all .25s;display:flex;flex-direction:column}
+.news-card:hover{border-color:var(–gold-dim);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.4)}
+.card-img{height:185px;background:var(–surface);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:42px;color:var(–text-dim)}
+.card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.card-img-fade{position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(to top,var(–card),transparent)}
+.card-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.75);border:1px solid var(–gold-dim);color:var(–gold);font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 8px;border-radius:4px;text-transform:uppercase}
+.card-body{padding:16px;display:flex;flex-direction:column;flex:1;gap:10px}
+.card-meta{display:flex;align-items:center;gap:6px;font-size:11px;flex-wrap:wrap}
+.card-time{color:var(–text-dim)}
+.card-dot{width:3px;height:3px;border-radius:50%;background:var(–text-dim)}
+.card-cat{background:rgba(201,168,76,.15);color:var(–gold);border:1px solid rgba(201,168,76,.25);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase}
+.card-si{background:rgba(224,123,42,.15);color:var(–saffron);border:1px solid rgba(224,123,42,.25);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600}
+.card-title{font-size:15px;font-weight:600;line-height:1.45;color:var(–text)}
+.card-title.si{font-family:‘Noto Sans Sinhala’,sans-serif;font-size:14px;line-height:1.8}
+.card-desc{font-size:13px;color:var(–text-mid);line-height:1.6;flex:1}
+.card-desc.si{font-family:‘Noto Sans Sinhala’,sans-serif;font-size:12px;line-height:2}
+.card-footer{display:flex;gap:8px;padding-top:10px;border-top:1px solid var(–border)}
+.card-link{flex:1;padding:8px;background:transparent;border:1px solid var(–border);border-radius:6px;color:var(–text-dim);font-size:12px;font-weight:500;cursor:pointer;text-decoration:none;text-align:center;transition:all .2s;font-family:‘Inter’,sans-serif;display:flex;align-items:center;justify-content:center;gap:4px}
+.card-link:hover{border-color:var(–gold-dim);color:var(–gold)}
+.gen-btn{flex:2;padding:8px;background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(224,123,42,.1));border:1px solid var(–gold-dim);border-radius:6px;color:var(–gold);font-size:12px;font-weight:600;cursor:pointer;font-family:‘Inter’,sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;position:relative}
+.gen-btn:hover{background:linear-gradient(135deg,rgba(201,168,76,.25),rgba(224,123,42,.2))}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed}
+.mini-spin{width:12px;height:12px;border:2px solid rgba(201,168,76,.3);border-top-color:var(–gold);border-radius:50%;animation:spin .7s linear infinite;display:none}
+.gen-btn.loading .mini-spin{display:block}
+.gen-btn.loading .gb-label{opacity:.6}
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px)}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(–surface);border:1px solid var(–border);border-radius:14px;width:100%;max-width:700px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(–border);display:flex;align-items:flex-start;gap:12px}
+.modal-ref{flex:1;font-size:13px;color:var(–text-dim);line-height:1.4}
+.modal-ref.si{font-family:‘Noto Sans Sinhala’,sans-serif;font-size:12px}
+.modal-close{background:none;border:none;color:var(–text-dim);font-size:20px;cursor:pointer;flex-shrink:0;line-height:1;padding:0}
+.modal-close:hover{color:var(–text)}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(–border);padding:0 20px}
+.tab{padding:12px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(–text-dim);font-size:13px;font-weight:500;cursor:pointer;font-family:‘Inter’,sans-serif;transition:all .2s;margin-bottom:-1px}
+.tab:hover{color:var(–text)}
+.tab.active{color:var(–gold);border-bottom-color:var(–gold)}
+.modal-body{flex:1;overflow-y:auto}
+.tab-panel{display:none;padding:20px}
+.tab-panel.active{display:block}
+
+/* ── RESULT PANELS ── */
+.result-block{background:var(–card);border:1px solid var(–border);border-radius:8px;padding:16px;margin-bottom:16px}
+.result-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(–gold);font-weight:600;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.result-text{font-size:13px;color:var(–text-mid);line-height:1.75;white-space:pre-wrap;word-break:break-word}
+.copy-btn{background:transparent;border:1px solid var(–border);border-radius:5px;padding:3px 10px;color:var(–text-dim);font-size:11px;cursor:pointer;font-family:‘Inter’,sans-serif;transition:all .2s}
+.copy-btn:hover{border-color:var(–gold-dim);color:var(–gold)}
+
+/* ── POLL PREVIEW ── */
+.poll-preview{background:linear-gradient(135deg,#0a0e18,#0f1520);border:1px solid var(–border);border-radius:10px;padding:20px;margin-bottom:16px;text-align:center}
+.poll-q{font-size:15px;font-weight:700;color:var(–text);line-height:1.5;margin-bottom:16px}
+.poll-q.si{font-family:‘Noto Sans Sinhala’,sans-serif;font-size:14px;line-height:2}
+.poll-q .hl{background:linear-gradient(135deg,#c9a84c,#e07b2a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.poll-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.poll-opt{padding:12px;border-radius:8px;font-size:13px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:4px}
+.poll-opt.non{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:#60a5fa}
+.poll-opt.oui{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171}
+.poll-label{font-size:16px;font-weight:800}
+
+/* ── MODAL FOOTER ── */
+.modal-foot{padding:14px 20px;border-top:1px solid var(–border);display:flex;gap:10px}
+.regen-btn{flex:1;padding:10px;background:transparent;border:1px solid var(–border);border-radius:8px;color:var(–text-dim);font-size:13px;font-weight:600;cursor:pointer;font-family:‘Inter’,sans-serif;transition:all .2s}
+.regen-btn:hover{border-color:var(–gold-dim);color:var(–text)}
+.regen-btn:disabled{opacity:.5;cursor:not-allowed}
+.copy-all-btn{flex:2;padding:10px;background:linear-gradient(135deg,var(–gold),var(–saffron));border:none;border-radius:8px;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:‘Inter’,sans-serif;transition:opacity .2s}
+.copy-all-btn:hover{opacity:.9}
+
+/* ── DEBUG ── */
+.debug-panel{background:var(–surface);border:1px solid var(–border);border-radius:var(–radius);padding:16px;margin-top:32px;display:none}
+.debug-panel.show{display:block}
+.debug-title{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(–gold);font-weight:600;margin-bottom:12px}
+.debug-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.debug-stat{background:var(–card);border:1px solid var(–border);border-radius:8px;padding:12px}
+.debug-stat-val{font-size:22px;font-weight:700;color:var(–gold)}
+.debug-stat-label{font-size:11px;color:var(–text-dim);margin-top:2px}
+.debug-raw{background:#0a0e18;border:1px solid var(–border);border-radius:8px;padding:14px;font-family:‘Courier New’,monospace;font-size:11px;color:#7dd3a8;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;line-height:1.6}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:80px 20px;color:var(–text-dim)}
+.empty-icon{font-size:52px;margin-bottom:16px;opacity:.4}
+.empty-title{font-size:18px;font-weight:600;color:var(–text-mid);margin-bottom:8px}
+.empty-sub{font-size:14px;line-height:1.6}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(–surface);border:1px solid var(–gold-dim);color:var(–gold);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;opacity:0;transform:translateY(10px);transition:all .25s;z-index:999;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:600px){
+.news-grid{grid-template-columns:1fr}
+.controls-row{flex-direction:column;align-items:flex-start}
+.lang-toggle{margin-left:0}
+.style-row{flex-direction:column}
+.style-card{flex:none}
+.poll-opts{grid-template-columns:1fr 1fr}
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🇱🇰</div>
+      <div>
+        <div class="logo-text">Lanka Viral Post</div>
+        <div class="logo-sub">News → Gemini → Facebook</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Ready</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Config Panel -->
+
+  <div class="cfg-panel">
+    <div class="cfg-header" onclick="togglePanel()">
+      <div>
+        <div class="cfg-title">⚙️ API Keys</div>
+        <div class="cfg-sub" id="cfgSub">Enter your Gemini API key to get started</div>
+      </div>
+      <span class="chevron open" id="chevron">▼</span>
+    </div>
+    <div class="cfg-body open" id="panelBody">
+      <div class="key-label">Gemini API Key</div>
+      <div class="key-row">
+        <input id="geminiKey" type="password" class="key-input" placeholder="AIza...">
+        <button class="eye-btn" onclick="toggleVis('geminiKey')">👁</button>
+      </div>
+      <button class="save-btn" onclick="saveKeys()">💾 Save Keys for This Session</button>
+    </div>
+  </div>
+
+  <!-- Controls -->
+
+  <div class="controls">
+    <div class="controls-row">
+      <span class="controls-label">Category</span>
+      <div class="cat-tabs">
+        <button class="cat-tab active" onclick="setCat(this,'general')">🌐 General</button>
+        <button class="cat-tab" onclick="setCat(this,'politics')">🗳️ Politics</button>
+        <button class="cat-tab" onclick="setCat(this,'business')">💼 Business</button>
+        <button class="cat-tab" onclick="setCat(this,'sports')">⚽ Sports</button>
+        <button class="cat-tab" onclick="setCat(this,'entertainment')">🎭 Entertainment</button>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang(this,'en')">EN</button>
+        <button class="lang-btn" onclick="setLang(this,'si')">සිං</button>
+      </div>
+    </div>
+
+```
+<div class="controls-label" style="margin-bottom:10px">Post Style</div>
+<div class="style-row">
+  <div class="style-card active" onclick="setStyle(this,'poll')">
+    <div class="style-card-icon">🗳️</div>
+    <div class="style-card-label">Poll Debate</div>
+  </div>
+  <div class="style-card" onclick="setStyle(this,'shock')">
+    <div class="style-card-icon">⚡</div>
+    <div class="style-card-label">Shock & Impact</div>
+  </div>
+  <div class="style-card" onclick="setStyle(this,'split')">
+    <div class="style-card-icon">⚖️</div>
+    <div class="style-card-label">Split Compare</div>
+  </div>
+  <div class="style-card" onclick="setStyle(this,'portrait')">
+    <div class="style-card-icon">👤</div>
+    <div class="style-card-label">Portrait</div>
+  </div>
+</div>
+
+<button class="fetch-btn" id="fetchBtn" onclick="fetchNews()">
+  <div class="spinner"></div>
+  <span class="btn-text">🔄 Fetch Latest News from Ada Derana</span>
+</button>
+```
+
+  </div>
+
+  <div class="error-bar" id="errorBar"></div>
+
+  <div class="section-label" id="sectionLabel">
+    <span class="section-label-text">Latest Articles</span>
+    <div class="section-label-line"></div>
+    <span class="section-label-count" id="articleCount">0 articles</span>
+  </div>
+
+  <div id="newsContainer">
+    <div class="empty-state">
+      <div class="empty-icon">📰</div>
+      <div class="empty-title">No news loaded yet</div>
+      <div class="empty-sub">Enter your Gemini key, select a category,<br>then click Fetch to load live Sri Lankan news.</div>
+    </div>
+  </div>
+
+  <!-- Debug Panel -->
+
+  <div class="debug-panel" id="debugPanel">
+    <div class="debug-title">🔧 Debug Info</div>
+    <div class="debug-grid">
+      <div class="debug-stat"><div class="debug-stat-val" id="dbItems">—</div><div class="debug-stat-label">Items in feed</div></div>
+      <div class="debug-stat"><div class="debug-stat-val" id="dbImages">—</div><div class="debug-stat-label">With images</div></div>
+      <div class="debug-stat"><div class="debug-stat-val" id="dbContent">—</div><div class="debug-stat-label">With content</div></div>
+      <div class="debug-stat"><div class="debug-stat-val" id="dbProxy">—</div><div class="debug-stat-label">Proxy used</div></div>
+    </div>
+    <div class="debug-title">Raw XML Preview</div>
+    <div class="debug-raw" id="dbRaw">—</div>
+  </div>
+</main>
+
+<!-- Result Modal -->
+
+<div class="modal-overlay" id="modalOverlay" onclick="bgClose(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-ref" id="modalRef"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(0)">🖼️ Image Prompt</button>
+      <button class="tab" onclick="switchTab(1)">📝 Text Overlay</button>
+      <button class="tab" onclick="switchTab(2)">📱 Caption</button>
+    </div>
+    <div class="modal-body">
+      <!-- Tab 0: Image Prompt -->
+      <div class="tab-panel active">
+        <div class="result-block">
+          <div class="result-label">AI Image Generation Prompt <button class="copy-btn" onclick="cp('pImage')">Copy</button></div>
+          <div class="result-text" id="pImage"></div>
+        </div>
+      </div>
+      <!-- Tab 1: Text Overlay -->
+      <div class="tab-panel">
+        <div class="poll-preview">
+          <div class="poll-q" id="pollQ"></div>
+          <div class="poll-opts">
+            <div class="poll-opt non"><span class="poll-label">නැහැ 👍</span><span class="poll-label" id="nonLabel"></span></div>
+            <div class="poll-opt oui"><span class="poll-label">ඔව් ❤️</span><span class="poll-label" id="ouiLabel"></span></div>
+          </div>
+        </div>
+        <div class="result-block">
+          <div class="result-label">Full Text Layout <button class="copy-btn" onclick="cp('pText')">Copy</button></div>
+          <div class="result-text" id="pText"></div>
+        </div>
+      </div>
+      <!-- Tab 2: Caption -->
+      <div class="tab-panel">
+        <div class="result-block">
+          <div class="result-label">Facebook Caption <button class="copy-btn" onclick="cp('pCaption')">Copy</button></div>
+          <div class="result-text" id="pCaption"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="regen-btn" id="regenBtn" onclick="regenerate()">🔄 Regenerate — Different Angle</button>
+      <button class="copy-all-btn" onclick="copyAll()">📋 Copy Everything</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let cat      = 'general';
+let lang     = 'en';
+let style    = 'poll';
+let articles = [];
+let current  = null;
+let lastResult = null;
+let panelOpen  = true;
+
+// ── RSS MAP ──
+// All from Ada Derana — most reliable, no proxy blocks
+const rssMap = {
+  en: {
+    general:       'https://www.adaderana.lk/rss.php',
+    politics:      'https://www.adaderana.lk/rss.php?id=2',
+    business:      'https://bizenglish.adaderana.lk/feed/',
+    sports:        'https://www.adaderana.lk/rss.php?id=6',
+    entertainment: 'https://www.adaderana.lk/rss.php?id=7'
+  },
+  si: {
+    general:       'https://sinhala.adaderana.lk/sinhala_news.php?mode=rss',
+    politics:      'https://sinhala.adaderana.lk/sinhala_news.php?mode=rss&cat=2',
+    business:      'https://sinhala.adaderana.lk/sinhala_news.php?mode=rss',
+    sports:        'https://sinhala.adaderana.lk/sinhala_news.php?mode=rss&cat=6',
+    entertainment: 'https://sinhala.adaderana.lk/sinhala_news.php?mode=rss&cat=7'
+  }
+};
+
+// Category keywords for client-side filtering when all IDs return same feed
+const catKeywords = {
+  general:       [],
+  politics:      ['parliament','minister','president','government','opposition','party','political','election','MP','cabinet','rajapaksa','dissanayake','wickremesinghe','senate','policy','vote'],
+  business:      ['economy','rupee','inflation','GDP','market','export','import','tax','finance','bank','stock','trade','investment','budget'],
+  sports:        ['cricket','football','rugby','sport','match','tournament','team','player','wicket','goal','win','lose','champion','olympic'],
+  entertainment: ['film','movie','music','singer','actor','actress','award','concert','drama','television','TV','celebrity','festival','art']
+};
+
+const sourceNames = {
+  general:'Ada Derana', politics:'Ada Derana',
+  business:'Derana Biz', sports:'Ada Derana', entertainment:'Ada Derana'
+};
+
+// ── PROXIES ──
+const PROXIES = [
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+  u => `https://thingproxy.freeboard.io/fetch/${u}`
+];
+
+// ── STYLE INSTRUCTIONS ──
+const styleInstructions = {
+  poll:`
+COMPOSITION — "POLL DEBATE" STYLE:
+- Portrait 4:5 ratio
+- TOP 55%: Dramatic scene. Key figure large on LEFT foreground, crisis scene on RIGHT background
+- BOTTOM 45%: Fades to solid near-black for poll overlay
+- Lighting: dramatic cinematic rim light, moody background
+- Color grade: dark, high contrast, slightly desaturated, Sri Lankan political tones (deep maroon/gold)`,
+  shock:`
+COMPOSITION — "SHOCK & IMPACT" STYLE:
+- Full frame dramatic wide shot
+- BOTTOM 40% fades to solid dark for text overlay
+- The SCENE is the subject — crowd, parliament, street
+- Color grade: dark, ominous, high contrast, cold tones`,
+  split:`
+COMPOSITION — "SPLIT COMPARISON" STYLE:
+- Frame split diagonally as if torn
+- LEFT HALF: warm golden tones — prosperity, traditional Sri Lanka, temple, paddy field
+- RIGHT HALF: cold gray/blue — poverty, urban tension, crowded streets
+- Sri Lankan lion flag tears dramatically through the diagonal center
+- BOTTOM 30%: solid dark gradient for text`,
+  portrait:`
+COMPOSITION — "POLITICAL PORTRAIT" STYLE:
+- Tight 3/4 angle portrait filling LEFT 60% from chest up
+- Subject looking slightly off-camera, intense expression
+- RIGHT: blurred parliament, protest, or political background
+- BOTTOM 40%: dark gradient to black for text overlay
+- Dramatic side rim lighting`
+};
+
+// ── KEYS ──
+function saveKeys() {
+  const gm = document.getElementById('geminiKey').value.trim();
+  if (!gm) { showErr('Please enter your Gemini API key.'); return; }
+  sessionStorage.setItem('_gm', gm);
+  document.getElementById('geminiKey').classList.add('ok');
+  document.getElementById('cfgSub').textContent = '✓ Gemini key active — cleared when tab closes';
+  togglePanel();
+  toast('Key saved!');
+}
+const gm = () => sessionStorage.getItem('_gm') || '';
+
+function toggleVis(id) {
+  const e = document.getElementById(id);
+  e.type = e.type === 'password' ? 'text' : 'password';
+}
+function togglePanel() {
+  panelOpen = !panelOpen;
+  document.getElementById('panelBody').classList.toggle('open', panelOpen);
+  document.getElementById('chevron').classList.toggle('open', panelOpen);
+}
+window.addEventListener('load', () => {
+  const k = gm();
+  if (k) {
+    document.getElementById('geminiKey').value = k;
+    document.getElementById('geminiKey').classList.add('ok');
+    document.getElementById('cfgSub').textContent = '✓ Key active — session only';
+    togglePanel();
+  }
+});
+
+function setCat(btn, c) {
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); cat = c;
+}
+function setLang(btn, l) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); lang = l;
+}
+function setStyle(card, s) {
+  document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active'); style = s;
+}
+
+// ── FETCH WITH PROXY FALLBACK ──
+async function fetchWithProxy(rssUrl) {
+  let lastErr = '';
+  for (let i = 0; i < PROXIES.length; i++) {
+    const proxyUrl = PROXIES[i](rssUrl);
+    try {
+      console.log(`Proxy ${i+1}:`, proxyUrl.substring(0, 60));
+      const r = await fetch(proxyUrl, { signal: AbortSignal.timeout(9000) });
+      if (!r.ok) { lastErr = `HTTP ${r.status}`; continue; }
+      const text = await r.text();
+      if (text && (text.includes('<item>') || text.includes('<item '))) {
+        document.getElementById('dbProxy').textContent = `#${i+1}`;
+        return text;
+      }
+      lastErr = 'No <item> in response';
+    } catch(e) { lastErr = e.message; }
+  }
+  throw new Error(`All proxies failed. Last: ${lastErr}`);
+}
+
+// ── FETCH NEWS ──
+async function fetchNews() {
+  const btn = document.getElementById('fetchBtn');
+  btn.disabled = true; btn.classList.add('loading');
+  setStatus('loading', 'Fetching...'); hideErr();
+  try {
+    const rssUrl = (rssMap[lang] || rssMap.en)[cat] || rssMap.en.general;
+    console.log('Target RSS:', rssUrl);
+    const xmlText = await fetchWithProxy(rssUrl);
+
+    document.getElementById('debugPanel').classList.add('show');
+    document.getElementById('dbRaw').textContent = xmlText.substring(0, 800);
+
+    const parser = new DOMParser();
+    const xml    = parser.parseFromString(xmlText, 'application/xml');
+    if (xml.querySelector('parsererror')) throw new Error('XML parse failed.');
+
+    const items = Array.from(xml.getElementsByTagName('item'));
+    document.getElementById('dbItems').textContent = items.length;
+    if (items.length === 0) throw new Error('No articles in feed.');
+
+    let imgCount = 0, contCount = 0;
+    let parsed = items.slice(0, 30).map(item => {
+      const get  = tag => item.getElementsByTagName(tag)[0]?.textContent?.trim() || '';
+      const desc = get('description');
+      const contentEnc = item.getElementsByTagName('content:encoded')[0]?.textContent?.trim() || '';
+      const media   = item.getElementsByTagName('media:content')[0];
+      const mediaTh = item.getElementsByTagName('media:thumbnail')[0];
+      const encl    = item.getElementsByTagName('enclosure')[0];
+      const image   =
+        media?.getAttribute('url')   ||
+        mediaTh?.getAttribute('url') ||
+        encl?.getAttribute('url')    ||
+        extractImg(contentEnc) || extractImg(desc) || null;
+      const content = contentEnc || desc || '';
+      return {
+        title:       get('title'),
+        description: stripHTML(desc),
+        content:     content,
+        url:         get('link'),
+        image:       image,
+        publishedAt: get('pubDate') || new Date().toISOString(),
+        source:      lang === 'si' ? 'Ada Derana සිං' : (sourceNames[cat] || 'Ada Derana'),
+        lang:        lang
+      };
+    });
+
+    // ── Keyword filter for categories that share same RSS ──
+    const keywords = catKeywords[cat] || [];
+    if (keywords.length > 0) {
+      const filtered = parsed.filter(a => {
+        const txt = (a.title + ' ' + a.description).toLowerCase();
+        return keywords.some(k => txt.includes(k.toLowerCase()));
+      });
+      // Use filtered if we got enough results, otherwise fall back to all
+      if (filtered.length >= 3) parsed = filtered;
+    }
+
+    articles = parsed.slice(0, 9);
+    articles.forEach(a => {
+      if (a.image) imgCount++;
+      if ((a.content||'').length > 80) contCount++;
+    });
+
+    document.getElementById('dbImages').textContent  = imgCount;
+    document.getElementById('dbContent').textContent = contCount;
+    renderNews(articles);
+    setStatus('live', `${articles.length} articles loaded`);
+    toast(`✓ ${articles.length} articles loaded`);
+  } catch(e) {
+    showErr(e.message); setStatus('error', 'Failed'); console.error(e);
+  } finally {
+    btn.disabled = false; btn.classList.remove('loading');
+  }
+}
+
+// ── RENDER ──
+function renderNews(arts) {
+  const isSi = lang === 'si';
+  document.getElementById('sectionLabel').style.display = 'flex';
+  document.getElementById('articleCount').textContent   = `${arts.length} articles`;
+  const grid = document.createElement('div');
+  grid.className = 'news-grid';
+  arts.forEach((a, i) => {
+    const card = document.createElement('div');
+    card.className = 'news-card';
+    card.innerHTML = `
+      <div class="card-img">
+        ${a.image ? `<img src="${a.image}" alt="" onerror="this.parentElement.innerHTML='🇱🇰'"><div class="card-img-fade"></div>` : '🇱🇰'}
+        <div class="card-badge">${a.source}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="card-time">${ago(a.publishedAt)}</span>
+          <span class="card-dot"></span>
+          <span class="card-cat">${cat}</span>
+          ${isSi ? '<span class="card-si">සිංහල</span>' : ''}
+        </div>
+        <div class="card-title${isSi ? ' si' : ''}">${a.title}</div>
+        <div class="card-desc${isSi ? ' si' : ''}">${(a.description||'').slice(0,130)}…</div>
+        <div class="card-footer">
+          <a class="card-link" href="${a.url}" target="_blank">🔗 Source</a>
+          <button class="gen-btn" id="gb${i}" onclick="generate(${i})">
+            ✨ <span class="gb-label">Generate Viral Post</span>
+            <div class="mini-spin"></div>
+          </button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+  document.getElementById('newsContainer').innerHTML = '';
+  document.getElementById('newsContainer').appendChild(grid);
+}
+
+// ── GENERATE ──
+async function generate(index) {
+  const article = articles[index];
+  if (!article) { showErr('Article data missing.'); return; }
+  current = article;
+  const btn = document.getElementById(`gb${index}`);
+  let oldHtml = '';
+  if (btn) {
+    oldHtml = btn.innerHTML;
+    btn.disabled = true; btn.classList.add('loading');
+    const lbl = btn.querySelector('.gb-label');
+    if (lbl) lbl.textContent = 'Generating...';
+  }
+  hideErr();
+  try {
+    if (!gm()) { showErr('Please enter your Gemini API key first.'); if (!panelOpen) togglePanel(); return; }
+    lastResult = await callGemini(article, style);
+    fillModal(article, lastResult);
+    openModal();
+    toast('Viral post ready!');
+  } catch(e) {
+    showErr('Generation Failed: ' + e.message);
+    console.error(e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.classList.remove('loading'); btn.innerHTML = oldHtml; }
+  }
+}
+
+// ── FETCH FULL ARTICLE ──
+async function fetchFullArticle(url) {
+  if (!url) return null;
+  const proxies = [
+    `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    `https://corsproxy.io/?${encodeURIComponent(url)}`
+  ];
+  for (const p of proxies) {
+    try {
+      const r = await fetch(p, { signal: AbortSignal.timeout(7000) });
+      if (!r.ok) continue;
+      const data = await r.json();
+      const html = data.contents || data;
+      if (typeof html !== 'string') continue;
+      const text = html
+        .replace(/<script[\s\S]*?<\/script>/gi,'')
+        .replace(/<style[\s\S]*?<\/style>/gi,'')
+        .replace(/<nav[\s\S]*?<\/nav>/gi,'')
+        .replace(/<header[\s\S]*?<\/header>/gi,'')
+        .replace(/<footer[\s\S]*?<\/footer>/gi,'')
+        .replace(/<[^>]+>/g,' ')
+        .replace(/\s{3,}/g,'\n')
+        .replace(/&nbsp;/g,' ').replace(/&amp;/g,'&')
+        .replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+        .replace(/&quot;/g,'"').trim();
+      if (text.length > 200) return text.slice(0, 3000);
+    } catch(e) { continue; }
+  }
+  return null;
+}
+
+// ── CALL GEMINI ──
+async function callGemini(article, st) {
+  const imgStyle = styleInstructions[st] || styleInstructions.poll;
+  let fullText = null;
+  try { fullText = await fetchFullArticle(article.url); } catch(e) {}
+
+  const articleContext = fullText
+    ? `ARTICLE TITLE: ${article.title}\nSOURCE: ${article.source}\nPUBLISHED: ${article.publishedAt}\nFULL ARTICLE:\n"""\n${fullText}\n"""`
+    : `ARTICLE TITLE: ${article.title}\nSOURCE: ${article.source}\nPUBLISHED: ${article.publishedAt}\nDESCRIPTION: ${article.description}`;
+
+  const masterPrompt = `
+You are the lead visual content strategist for a viral Sri Lankan news Facebook page with 500,000+ followers.
+Your graphics use dramatic, gritty AI-generated images with bold Sinhala text overlays.
+Every output must feel urgent, emotionally powerful, and highly shareable.
+ALL text overlays (titles, subtitles, poll questions, labels) MUST be written in Sinhala script.
+The Facebook caption MUST also be written in Sinhala.
+
+━━━ NEWS DATA ━━━
+${articleContext}
+
+━━━ LAYOUT STYLE ━━━
+${imgStyle}
+
+━━━ IMAGE PROMPT RULES ━━━
+Write a highly detailed English image generation prompt following ALL these rules:
+
+1. KEY FIGURE DETECTION (CRITICAL RULE):
+   Carefully read the news text and identify if a real named person is mentioned.
+   
+   IF a real named person IS mentioned (politician, official, celebrity, etc.):
+   - Describe their physical appearance as accurately as possible based on their known appearance
+   - You MUST add the exact text "(image was generated)" in brackets immediately after their name in the prompt
+   - Example: "Anura Kumara Dissanayake (image was generated), a slim Sri Lankan man in his mid-50s..."
+   
+   IF no specific person is named, use these defaults:
+   - Politics/governance: "A distinguished South Asian male politician, late 50s, dark complexion, wearing white Sri Lankan national dress (national attire), serious contemplative expression"
+   - Economy/business: "A South Asian male in a dark formal suit, serious expression, standing in front of Colombo skyline"
+   - Social issues: "A concerned South Asian woman, middle-aged, traditional Sri Lankan clothing, distressed expression"
+   - Sports: "A Sri Lankan athlete in sports uniform, determined expression, stadium background"
+   - General: "No human figure — focus entirely on the dramatic Sri Lankan landscape or scene"
+
+2. BACKGROUND ENVIRONMENT (Sri Lanka specific):
+   - Politics: "Sri Lankan Parliament building in Sri Jayawardenepura Kotte, dramatic stormy sky, lush tropical greenery surrounding"
+   - Economy: "Colombo Fort financial district, World Trade Centre twin towers visible, modern high-rises"
+   - Social/crime: "Crowded Colombo urban street, tuk-tuks, street vendors, densely packed neighborhood"
+   - Sports: "R. Premadasa Stadium Colombo or Mahinda Rajapaksa International Cricket Stadium, roaring crowd"
+   - General: "Iconic Colombo skyline at golden hour, Beira Lake reflecting warm light, dramatic sky"
+
+3. NATIONAL SYMBOLS: Always include a Sri Lankan lion flag (golden lion on crimson/maroon background with gold border and orange stripes) draped visibly somewhere in the scene.
+
+4. TEXT PROTECTION ZONE: ${st === 'poll' ? 'The lower 45% of the frame must smoothly fade to completely solid near-black (#0a0a0a) — empty zone reserved for Sinhala text and poll overlay.' : 'The lower 30% of the frame must smoothly fade to solid near-black (#0a0a0a) — empty zone reserved for Sinhala headline overlay.'}
+
+5. CAMERA & RATIO: End the prompt with exactly: "photojournalism style, cinematic side rim lighting, sharp foreground focus, volumetric tropical haze, high-contrast desaturated color grade, shot on Canon EOS R5, 35mm f/2.8, 8k resolution, hyper-realistic --ar 3:4 --style raw"
+
+━━━ OUTPUT FORMAT ━━━
+Reply ONLY with these exact fields in order. No markdown symbols, no extra explanation.
+ALL text fields below (except IMAGE_PROMPT and IMAGE_NEGATIVE) MUST be written in Sinhala script.
+${st !== 'poll' ? 'Since this is not a poll style, set POLL_QUESTION, NO_LABEL, YES_LABEL to: NONE' : ''}
+
+IMAGE_PROMPT:
+[Dense 5-7 sentence English image generation prompt following ALL rules above including the (image was generated) tag if a real person is named]
+
+MAIN_TITLE:
+[Shocking breaking headline in SINHALA. ALL CAPS where possible. Max 10 words.]
+
+HIGHLIGHT_PHRASE:
+[The 2-4 most shocking Sinhala words directly from MAIN_TITLE — for brush stroke highlight effect]
+
+SUB_TITLE:
+[One specific fact, statistic or location detail in SINHALA. Max 10 words. If none: NONE]
+
+POLL_QUESTION:
+[Binary debate question in SINHALA. Ends with '?'. Max 12 words. If no poll style: NONE]
+
+NO_LABEL:
+[What voting NO 👍 means — 3-5 words in SINHALA. If no poll: NONE]
+
+YES_LABEL:
+[What voting YES ❤️ means — 3-5 words in SINHALA. If no poll: NONE]
+
+FACEBOOK_CAPTION:
+[Complete SINHALA Facebook caption: urgent opening hook referencing the news, 2 sentences of specific event details, one provocative question to spark debate, call-to-action '👉 ඔබේ අදහස් පහතින් දන්වන්න!' followed by relevant Sinhala and English hashtags including #SriLanka #ශ්‍රීලංකා #LKA]
+
+IMAGE_NEGATIVE:
+[English comma-separated exclusion list: western faces, european architecture, cartoon style, duplicate heads, smiling cheerful faces, bright colors, text or letters on walls, watermarks]
+`.trim();
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${gm()}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: masterPrompt }] }],
+        generationConfig: { temperature: 0.70, maxOutputTokens: 4500, topK: 40, topP: 0.95 }
+      })
+    }
+  );
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.error?.message || `Gemini error ${res.status}`);
+  }
+  const data = await res.json();
+  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!rawText) throw new Error('Gemini returned empty response.');
+  return parse(rawText);
+}
+
+// ── PARSER ──
+function parse(text) {
+  console.log('RAW GEMINI:', text);
+  function getField(name) {
+    const p = new RegExp('(?:^|\\n)[#\\s\\*]*' + name + '[#\\s\\*]*[:\\-]?\\s*([\\s\\S]*?)(?=\\n[#\\s\\*]*[A-Z_]{3,}[#\\s\\*]*[:\\-]?|$)', 'i');
+    const m = text.match(p);
+    return m ? m[1].trim() : '';
+  }
+  let imagePrompt    = getField('IMAGE_PROMPT');
+  const mainTitle    = getField('MAIN_TITLE');
+  const highlight    = getField('HIGHLIGHT_PHRASE');
+  const subTitle     = getField('SUB_TITLE');
+  const pollQuestion = getField('POLL_QUESTION');
+  const noLabel      = getField('NO_LABEL');
+  const yesLabel     = getField('YES_LABEL');
+  const caption      = getField('FACEBOOK_CAPTION');
+  const negative     = getField('IMAGE_NEGATIVE');
+
+  if (!imagePrompt && text.toUpperCase().includes('IMAGE_PROMPT')) {
+    const parts = text.split(/IMAGE_PROMPT\s*:/i);
+    if (parts[1]) imagePrompt = parts[1].split(/\n[A-Z_]+:/i)[0].replace(/[\*#]/g,'').trim();
+  }
+
+  const fullPrompt = negative && !imagePrompt.toUpperCase().includes('NEGATIVE')
+    ? `${imagePrompt}\n\n[NEGATIVE PROMPT]: ${negative}` : imagePrompt;
+
+  const frText = `
+MAIN TITLE (bold, ALL CAPS):
+${mainTitle || '(No title)'}
+
+HIGHLIGHT (brush stroke):
+"${highlight || '(No highlight)'}"
+
+SUBTITLE:
+${(subTitle && subTitle !== 'NONE') ? subTitle : '(No subtitle)'}
+
+━━━ POLL ━━━
+${pollQuestion || 'N/A'}
+
+NO 👍 : ${noLabel || 'N/A'}
+YES ❤️ : ${yesLabel || 'N/A'}
+`.trim();
+
+  return { imagePrompt: fullPrompt || text.slice(0,500), frText, mainTitle, highlight, subTitle, pollQuestion, noLabel, yesLabel, caption: caption || text, negative };
+}
+
+// ── FILL MODAL ──
+function fillModal(article, r) {
+  const isSi = article.lang === 'si';
+  document.getElementById('modalRef').textContent = article.title;
+  document.getElementById('modalRef').className   = `modal-ref${isSi ? ' si' : ''}`;
+  document.getElementById('pImage').textContent   = r.imagePrompt;
+  document.getElementById('pText').textContent    = r.frText;
+
+  let qHtml = r.pollQuestion || r.mainTitle || '';
+  if (r.highlight && qHtml) {
+    const esc = r.highlight.replace(/[.*+?^${}()|\[\]]/g,'\\$&');
+    qHtml = qHtml.replace(new RegExp('('+esc+')','i'),'<span class="hl">$1</span>');
+  }
+  const pollQEl = document.getElementById('pollQ');
+  pollQEl.innerHTML  = qHtml;
+  pollQEl.className  = `poll-q${isSi ? ' si' : ''}`;
+
+  document.getElementById('nonLabel').textContent = r.noLabel  || '';
+  document.getElementById('ouiLabel').textContent = r.yesLabel || '';
+  document.getElementById('pCaption').textContent = r.caption;
+  switchTab(0);
+}
+
+// ── MODAL ──
+function openModal() {
+  const o = document.getElementById('modalOverlay');
+  o.classList.add('open'); o.style.display = 'flex';
+}
+function closeModal() {
+  const o = document.getElementById('modalOverlay');
+  o.classList.remove('open'); o.style.display = 'none';
+}
+function bgClose(e) { if (e.target.id === 'modalOverlay') closeModal(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function switchTab(idx) {
+  document.querySelectorAll('.tabs .tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('.modal-body .tab-panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+}
+
+// ── REGENERATE ──
+async function regenerate() {
+  if (!gm() || !current) return;
+  const btn = document.getElementById('regenBtn');
+  btn.disabled = true; btn.textContent = '⏳ Regenerating...';
+  try {
+    lastResult = await callGemini(current, style);
+    fillModal(current, lastResult);
+    toast('Regenerated!');
+  } catch(e) { showErr('Regenerate failed: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = '🔄 Regenerate — Different Angle'; }
+}
+
+// ── COPY ──
+function cp(id) {
+  const text = document.getElementById(id).innerText || document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => toast('Copied!')).catch(() => {
+    const t = document.createElement('textarea');
+    t.value = text; document.body.appendChild(t); t.select();
+    document.execCommand('copy'); document.body.removeChild(t); toast('Copied!');
+  });
+}
+function copyAll() {
+  if (!lastResult) return;
+  const all = `=== IMAGE PROMPT ===\n${lastResult.imagePrompt}\n\n=== TEXT OVERLAY ===\n${lastResult.frText}\n\n=== POLL QUESTION ===\n${lastResult.pollQuestion}\n\n=== FACEBOOK CAPTION ===\n${lastResult.caption}`;
+  navigator.clipboard.writeText(all).then(() => toast('Everything copied!')).catch(() => {});
+}
+
+// ── HELPERS ──
+function extractImg(html) {
+  if (!html) return null;
+  const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return m ? m[1] : null;
+}
+function stripHTML(html) {
+  if (!html) return '';
+  return html.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'')
+    .replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&')
+    .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')
+    .replace(/\s{2,}/g,' ').trim();
+}
+function ago(d) {
+  const s = (Date.now() - new Date(d)) / 1000;
+  if (s < 60)    return 'Just now';
+  if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+  return `${Math.floor(s/86400)}d ago`;
+}
+function setStatus(state, text) {
+  document.getElementById('statusDot').className   = `status-dot${state==='live'?' live':state==='error'?' error':''}`;
+  document.getElementById('statusText').textContent = text;
+}
+function showErr(m) { const b=document.getElementById('errorBar'); b.textContent='⚠️ '+m; b.classList.add('show'); }
+function hideErr()  { document.getElementById('errorBar').classList.remove('show'); }
+function toast(m)   { const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+</script>
+
+</body>
+</html>
