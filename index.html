@@ -619,7 +619,7 @@ async function fetchNews() {
       if (filtered.length >= 3) parsed = filtered;
     }
 
-    articles = parsed.slice(0, 9);
+    articles = parsed.slice(0, 15);
     articles.forEach(a => {
       if (a.image) imgCount++;
       if ((a.content||'').length > 80) contCount++;
@@ -775,14 +775,14 @@ Write a highly detailed English image generation prompt following ALL these rule
    - Sports: "A Sri Lankan athlete in sports uniform, determined expression, stadium background"
    - General: "No human figure — focus entirely on the dramatic Sri Lankan landscape or scene"
 
-2. BACKGROUND ENVIRONMENT (Sri Lanka specific):
+2. BACKGROUND ENVIRONMENT (related to country in the news ):
    - Politics: "Sri Lankan Parliament building in Sri Jayawardenepura Kotte, dramatic stormy sky, lush tropical greenery surrounding"
    - Economy: "Colombo Fort financial district, World Trade Centre twin towers visible, modern high-rises"
    - Social/crime: "Crowded Colombo urban street, tuk-tuks, street vendors, densely packed neighborhood"
    - Sports: "R. Premadasa Stadium Colombo or Mahinda Rajapaksa International Cricket Stadium, roaring crowd"
    - General: "Iconic Colombo skyline at golden hour, Beira Lake reflecting warm light, dramatic sky"
 
-3. NATIONAL SYMBOLS: Always include a Sri Lankan lion flag (golden lion on crimson/maroon background with gold border and orange stripes) draped visibly somewhere in the scene.
+3. NATIONAL SYMBOLS(if the country is srilanka in the news): Always include a Sri Lankan lion flag (golden lion on crimson/maroon background with gold border and orange stripes) draped visibly somewhere in the scene. Other wise the flag of country what in the news 
 
 4. TEXT PROTECTION ZONE: ${st === 'poll' ? 'The lower 45% of the frame must smoothly fade to completely solid near-black (#0a0a0a) — empty zone reserved for Sinhala text and poll overlay.' : 'The lower 30% of the frame must smoothly fade to solid near-black (#0a0a0a) — empty zone reserved for Sinhala headline overlay.'}
 
