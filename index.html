@@ -569,7 +569,7 @@ async function fetchNews() {
       if (filtered.length >= 3) parsed = filtered;
     }
 
-    articles = parsed.slice(0, 9);
+    articles = parsed.slice(0, 15);
     articles.forEach(a => {
       if (a.image) imgCount++;
       if ((a.content||'').length > 80) contCount++;
